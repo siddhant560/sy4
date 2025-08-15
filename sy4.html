@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood Lifter 💖</title>
+<style>
+  body {
+    background-color: #1c1c1c;
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+  h1 {
+    margin-bottom: 10px;
+  }
+  .moods {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  button {
+    background-color: #ff4f70;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  button:hover {
+    background-color: #ff2a57;
+  }
+  .output {
+    text-align: center;
+    max-width: 500px;
+    animation: fadeIn 0.4s ease-in-out;
+    position: relative;
+  }
+  img {
+    max-width: 100%;
+    border-radius: 10px;
+    margin-top: 15px;
+  }
+  #boostBtn {
+    margin-top: 12px;
+    background-color: #4cafef;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+  /* Floating hearts for sad mood */
+  .heart {
+    position: fixed;
+    color: pink;
+    font-size: 24px;
+    animation: floatUp 4s linear forwards;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-200px); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<h1>💖 Mood Lifter 💖</h1>
+<p>Click your current mood and I’ll try to make it better.</p>
+
+<div class="moods">
+  <button onclick="showMood('happy')">😊 Happy</button>
+  <button onclick="showMood('sad')">😢 Sad</button>
+  <button onclick="showMood('stressed')">😣 Stressed</button>
+  <button onclick="showMood('bored')">😐 Bored</button>
+  <button onclick="showMood('tired')">🥱 Tired</button>
+</div>
+
+<div class="output" id="output">
+  <p>Select a mood above...</p>
+</div>
+
+<audio id="bgMusic" loop></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+const moods = {
+  happy: {
+    message: [
+      "Your smile is contagious — the world’s lucky you’re in it!",
+      "Stay golden, superstar 🌟",
+      "Happiness looks amazing on you!"
+    ],
+    image: [
+      "https://placekitten.com/400/300",
+      "https://i.imgur.com/JZyFvCO.jpeg",
+      "https://i.imgur.com/qIufhof.jpeg"
+    ],
+    music: "https://www.bensound.com/bensound-music/bensound-sunny.mp3"
+  },
+  sad: {
+    message: [
+      "You’re stronger than you feel right now 💪",
+      "Storms don’t last forever — you’ve got this.",
+      "If hugs could be sent through screens, you’d have 100 by now 🤗"
+    ],
+    image: [
+      "https://i.imgur.com/0v1pJZl.jpeg",
+      "https://placekitten.com/401/300",
+      "https://i.imgur.com/g6oHdbL.jpeg"
+    ],
+    music: "https://www.bensound.com/bensound-music/bensound-tenderness.mp3"
+  },
+  stressed: {
+    message: [
+      "Take a deep breath — you’re doing better than you think.",
+      "You are allowed to rest. 🌿",
+      "One step at a time — you’re crushing it."
+    ],
+    image: [
+      "https://placekitten.com/402/300",
+      "https://i.imgur.com/j4xv9eE.jpeg",
+      "https://i.imgur.com/NlA9pHZ.jpeg"
+    ],
+    music: "https://www.bensound.com/bensound-music/bensound-relaxing.mp3"
+  },
+  bored: {
+    message: [
+      "How about learning to moonwalk right now? 😉",
+      "Did you know sea otters hold hands while they sleep? 🦦",
+      "Your next adventure is just one idea away."
+    ],
+    image: [
+      "https://i.imgur.com/zYILrcF.jpeg",
+      "https://placekitten.com/403/300",
+      "https://i.imgur.com/k0nW8Um.jpeg"
+    ],
+    music: "https://www.bensound.com/bensound-music/bensound-ukulele.mp3"
+  },
+  tired: {
+    message: [
+      "You deserve a cozy blanket and a good rest.",
+      "Close your eyes and imagine the best nap ever.",
+      "Even superheroes need sleep 😴"
+    ],
+    image: [
+      "https://i.imgur.com/n8Z9KJo.jpeg",
+      "https://placekitten.com/404/300",
+      "https://i.imgur.com/8Km9tLL.jpeg"
+    ],
+    music: "https://www.bensound.com/bensound-music/bensound-slowmotion.mp3"
+  }
+};
+
+let currentMood = null;
+
+function showMood(mood) {
+  currentMood = mood;
+  playMusic(moods[mood].music);
+  displayMessage(mood);
+
+  if (mood === "happy") {
+    triggerConfetti();
+  } else if (mood === "sad") {
+    triggerHearts();
+  }
+}
+
+function displayMessage(mood) {
+  const moodData = moods[mood];
+  const msg = moodData.message[Math.floor(Math.random() * moodData.message.length)];
+  const img = moodData.image[Math.floor(Math.random() * moodData.image.length)];
+
+  document.getElementById("output").innerHTML = `
+    <p>${msg}</p>
+    <img src="${img}" alt="${mood} image" />
+    <button id="boostBtn" onclick="boost()">Another boost!</button>
+  `;
+}
+
+function boost() {
+  if (currentMood) {
+    displayMessage(currentMood);
+    if (currentMood === "happy") triggerConfetti();
+    if (currentMood === "sad") triggerHearts();
+  }
+}
+
+function playMusic(src) {
+  const audio = document.getElementById("bgMusic");
+  audio.src = src;
+  audio.play().catch(() => {}); // Ignore autoplay block
+}
+
+function triggerConfetti() {
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+}
+
+function triggerHearts() {
+  for (let i = 0; i < 5; i++) {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.textContent = "💖";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 4000);
+  }
+}
+</script>
+
+</body>
+</html>
